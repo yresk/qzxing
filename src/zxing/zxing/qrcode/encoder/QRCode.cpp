@@ -6,7 +6,6 @@ namespace zxing {
 namespace qrcode {
 
 QRCode::QRCode() :
-    mode_(),
     ecLevel_ptr_(NULL),
     version_ptr_(NULL),
     maskPattern_(-1),
@@ -21,12 +20,12 @@ Mode QRCode::getMode() const
     return mode_;
 }
 
-Ref<ErrorCorrectionLevel> QRCode::getECLevel() const
+QSharedPointer<ErrorCorrectionLevel> QRCode::getECLevel() const
 {
     return ecLevel_ptr_;
 }
 
-Ref<Version> QRCode::getVersion() const
+QSharedPointer<Version> QRCode::getVersion() const
 {
     return version_ptr_;
 }
@@ -36,12 +35,12 @@ int QRCode::getMaskPattern() const
     return maskPattern_;
 }
 
-Ref<ByteMatrix> QRCode::getMatrix() const
+QSharedPointer<ByteMatrix> QRCode::getMatrix() const
 {
     return matrix_ptr_;
 }
 
-const std::string QRCode::toString()
+std::string QRCode::toString() const
 {
     std::stringstream result;
     result << "<<";
@@ -50,13 +49,13 @@ const std::string QRCode::toString()
     result << mode_.getName();
 
     result << "\n ecLevel: ";
-    if(!ecLevel_ptr_.empty())
+    if(!ecLevel_ptr_.isNull())
         result << ecLevel_ptr_->name();
     else
         result << "null";
 
     result << "\n version: ";
-    if(!version_ptr_.empty())
+    if(version_ptr_)
     {
         std::string version_str;
         std::ostringstream convert;
@@ -84,12 +83,12 @@ void QRCode::setMode(const Mode& value)
     mode_ = value;
 }
 
-void QRCode::setECLevel(Ref<ErrorCorrectionLevel> value)
+void QRCode::setECLevel(QSharedPointer<ErrorCorrectionLevel> value)
 {
     ecLevel_ptr_ = value;
 }
 
-void QRCode::setVersion(Ref<Version> version)
+void QRCode::setVersion(QSharedPointer<Version> version)
 {
     version_ptr_ = version;
 }
@@ -99,7 +98,7 @@ void QRCode::setMaskPattern(int value)
     maskPattern_ = value;
 }
 
-void QRCode::setMatrix(Ref<ByteMatrix> value)
+void QRCode::setMatrix(QSharedPointer<ByteMatrix> value)
 {
     matrix_ptr_ = value;
 }

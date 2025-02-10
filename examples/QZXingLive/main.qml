@@ -4,7 +4,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
 import QtMultimedia 5.5
 
-import QZXing 2.3
+import QZXing 3.3
 
 ApplicationWindow
 {
@@ -85,6 +85,7 @@ ApplicationWindow
     QZXingFilter
     {
         id: zxingFilter
+        orientation: videoOutput.orientation
         captureRect: {
             // setup bindings
             videoOutput.contentRect;
@@ -119,7 +120,8 @@ ApplicationWindow
         {
            timePerFrameDecode = (decodeTime + framesDecoded * timePerFrameDecode) / (framesDecoded + 1);
            framesDecoded++;
-           console.log("frame finished: " + succeeded, decodeTime, timePerFrameDecode, framesDecoded);
+           if(succeeded)
+            console.log("frame finished: " + succeeded, decodeTime, timePerFrameDecode, framesDecoded);
         }
     }
 

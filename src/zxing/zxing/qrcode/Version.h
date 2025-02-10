@@ -1,5 +1,5 @@
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#ifndef ZXING_VERSION_H
+#define ZXING_VERSION_H
 
 /*
  *  Version.h
@@ -20,11 +20,10 @@
  * limitations under the License.
  */
 
-#include <zxing/common/Counted.h>
+#include <QSharedPointer>
 #include <zxing/qrcode/ErrorCorrectionLevel.h>
 #include <zxing/ReaderException.h>
 #include <zxing/common/BitMatrix.h>
-#include <zxing/common/Counted.h>
 #include <vector>
 
 namespace zxing {
@@ -47,13 +46,14 @@ private:
 public:
   ECBlocks(int ecCodewordsPerBloc, ECB *ecBlocks);
   ECBlocks(int ecCodewordsPerBloc, ECB *ecBlocks1, ECB *ecBlocks2);
+  int numBlocks() const;
   int getECCodewordsPerBloc();
   int getTotalECCodewords();
   std::vector<ECB*>& getECBlocks();
   ~ECBlocks();
 };
 
-class Version : public Counted {
+class Version  {
 
 private:
   int versionNumber_;
@@ -66,7 +66,7 @@ private:
 public:
   static unsigned int VERSION_DECODE_INFO[];
   static int N_VERSION_DECODE_INFOS;
-  static std::vector<Ref<Version> > VERSIONS;
+  static std::vector<QSharedPointer<Version> > VERSIONS;
 
   ~Version();
   int getVersionNumber() const;
@@ -74,13 +74,13 @@ public:
   int getTotalCodewords();
   int getDimensionForVersion();
   ECBlocks &getECBlocksForLevel(const ErrorCorrectionLevel &ecLevel) const;
-  static Ref<Version> getProvisionalVersionForDimension(int dimension);
-  static Ref<Version> getVersionForNumber(int versionNumber);
-  static Ref<Version> decodeVersionInformation(unsigned int versionBits);
-  Ref<BitMatrix> buildFunctionPattern();
+  static QSharedPointer<Version> getProvisionalVersionForDimension(int dimension);
+  static QSharedPointer<Version> getVersionForNumber(int versionNumber);
+  static QSharedPointer<Version> decodeVersionInformation(unsigned int versionBits);
+  QSharedPointer<BitMatrix> buildFunctionPattern();
   static int buildVersions();
 };
 }
 }
 
-#endif // __VERSION_H__
+#endif // ZXING_VERSION_H

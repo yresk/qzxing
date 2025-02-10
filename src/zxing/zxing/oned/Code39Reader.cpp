@@ -17,7 +17,6 @@
 
 #include "Code39Reader.h"
 #include <zxing/oned/OneDResultPoint.h>
-#include <zxing/common/Array.h>
 #include <zxing/ReaderException.h>
 #include <zxing/NotFoundException.h>
 #include <zxing/ChecksumException.h>
@@ -26,7 +25,7 @@
 #include <algorithm>
 
 using std::vector;
-using zxing::Ref;
+
 using zxing::Result;
 using zxing::String;
 using zxing::NotFoundException;
@@ -92,10 +91,10 @@ Code39Reader::Code39Reader(bool usingCheckDigit_, bool extendedMode_) {
   init(usingCheckDigit_, extendedMode_);
 }
 
-Ref<Result> Code39Reader::decodeRow(int rowNumber, Ref<BitArray> row, zxing::DecodeHints /*hints*/) {
+QSharedPointer<Result> Code39Reader::decodeRow(int rowNumber, QSharedPointer<BitArray> row, zxing::DecodeHints /*hints*/) {
   std::vector<int>& theCounters (counters);
   { // Arrays.fill(counters, 0);
-    int size = theCounters.size();
+    int size = int(theCounters.size());
     theCounters.resize(0);
     theCounters.resize(size); }
   std::string& result (decodeRowResult);
@@ -117,7 +116,7 @@ Ref<Result> Code39Reader::decodeRow(int rowNumber, Ref<BitArray> row, zxing::Dec
     decodedChar = patternToChar(pattern);
     result.append(1, decodedChar);
     lastStart = nextStart;
-    for (int i = 0, end=theCounters.size(); i < end; i++) {
+    for (int i = 0, end=int(theCounters.size()); i < end; i++) {
       nextStart += theCounters[i];
     }
     // Read off white space
@@ -127,7 +126,7 @@ Ref<Result> Code39Reader::decodeRow(int rowNumber, Ref<BitArray> row, zxing::Dec
 
     // Look for whitespace after pattern:
   int lastPatternSize = 0;
-  for (int i = 0, e = theCounters.size(); i < e; i++) {
+  for (int i = 0, e = int(theCounters.size()); i < e; i++) {
     lastPatternSize += theCounters[i];
   }
   int whiteSpaceAfterEnd = nextStart - lastStart - lastPatternSize;
@@ -138,10 +137,10 @@ Ref<Result> Code39Reader::decodeRow(int rowNumber, Ref<BitArray> row, zxing::Dec
   }
 
   if (usingCheckDigit) {
-    int max = result.length() - 1;
+    int max = int(result.length()) - 1;
     int total = 0;
     for (int i = 0; i < max; i++) {
-      total += alphabet_string.find_first_of(decodeRowResult[i], 0);
+      total += int(alphabet_string.find_first_of(decodeRowResult[i], 0));
     }
     if (result[max] != ALPHABET[total % 43]) {
       throw ChecksumException();
@@ -154,35 +153,33 @@ Ref<Result> Code39Reader::decodeRow(int rowNumber, Ref<BitArray> row, zxing::Dec
     throw NotFoundException();
   }
   
-  Ref<String> resultString;
+  QSharedPointer<String> resultString;
   if (extendedMode) {
     resultString = decodeExtended(result);
   } else {
-    resultString = Ref<String>(new String(result));
+    resultString = QSharedPointer<String>(new String(result));
   }
 
   float left = (float) (start[1] + start[0]) / 2.0f;
   float right = lastStart + lastPatternSize / 2.0f;
 
-  ArrayRef< Ref<ResultPoint> > resultPoints (2);
-  resultPoints[0] = 
-    Ref<OneDResultPoint>(new OneDResultPoint(left, (float) rowNumber));
-  resultPoints[1] =
-    Ref<OneDResultPoint>(new OneDResultPoint(right, (float) rowNumber));
+  QSharedPointer<std::vector<QSharedPointer<ResultPoint>>> resultPoints (new std::vector<QSharedPointer<ResultPoint>>(2));
+  (*resultPoints)[0].reset(new OneDResultPoint(left, (float) rowNumber));
+  (*resultPoints)[1].reset(new OneDResultPoint(right, (float) rowNumber));
   
-  return Ref<Result>(
-    new Result(resultString, ArrayRef<zxing::byte>(), resultPoints, BarcodeFormat::CODE_39)
+  return QSharedPointer<Result>(
+    new Result(resultString, QSharedPointer<std::vector<zxing::byte>>(), resultPoints, BarcodeFormat::CODE_39)
     );
 }
 
-vector<int> Code39Reader::findAsteriskPattern(Ref<BitArray> row, vector<int>& counters){
+vector<int> Code39Reader::findAsteriskPattern(QSharedPointer<BitArray> row, vector<int>& counters){
   int width = row->getSize();
   int rowOffset = row->getNextSet(0);
 
   int counterPosition = 0;
   int patternStart = rowOffset;
   bool isWhite = false;
-  int patternLength = counters.size();
+  int patternLength = int(counters.size());
 
   for (int i = rowOffset; i < width; i++) {
     if (row->get(i) ^ isWhite) {
@@ -218,7 +215,7 @@ vector<int> Code39Reader::findAsteriskPattern(Ref<BitArray> row, vector<int>& co
 // For efficiency, returns -1 on failure. Not throwing here saved as many as
 // 700 exceptions per image when using some of our blackbox images.
 int Code39Reader::toNarrowWidePattern(vector<int>& counters){
-  int numCounters = counters.size();
+  int numCounters = int(counters.size());
   int maxNarrowCounter = 0;
   int wideCounters;
   do {
@@ -271,8 +268,8 @@ char Code39Reader::patternToChar(int pattern){
   throw ReaderException("");
 }
 
-Ref<String> Code39Reader::decodeExtended(std::string encoded){
-  int length = encoded.length();
+QSharedPointer<String> Code39Reader::decodeExtended(std::string encoded){
+  int length = int(encoded.length());
   std::string tmpDecoded;
   for (int i = 0; i < length; i++) {
     char c = encoded[i];
@@ -324,6 +321,6 @@ Ref<String> Code39Reader::decodeExtended(std::string encoded){
       tmpDecoded.append(1, c);
     }
   }
-  Ref<String> decoded(new String(tmpDecoded));
+  QSharedPointer<String> decoded(new String(tmpDecoded));
   return decoded;
 }

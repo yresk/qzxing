@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef __GREYSCALE_LUMINANCE_SOURCE__
-#define __GREYSCALE_LUMINANCE_SOURCE__
+#ifndef ZXING_GREYSCALE_LUMINANCE_SOURCE
+#define ZXING_GREYSCALE_LUMINANCE_SOURCE
 /*
  *  GreyscaleLuminanceSource.h
  *  zxing
@@ -28,26 +28,26 @@ class GreyscaleLuminanceSource : public LuminanceSource {
 
 private:
   typedef LuminanceSource Super;
-  ArrayRef<zxing::byte> greyData_;
+  QSharedPointer<std::vector<zxing::byte>> greyData_;
   const int dataWidth_;
   const int dataHeight_;
   const int left_;
   const int top_;
 
 public:
-  GreyscaleLuminanceSource(ArrayRef<zxing::byte> greyData, int dataWidth, int dataHeight, int left,
+  GreyscaleLuminanceSource(QSharedPointer<std::vector<zxing::byte>> greyData, int dataWidth, int dataHeight, int left,
                            int top, int width, int height);
 
-  ArrayRef<zxing::byte> getRow(int y, ArrayRef<zxing::byte> row) const;
-  ArrayRef<zxing::byte> getMatrix() const;
+  QSharedPointer<std::vector<zxing::byte>> getRow(int y, QSharedPointer<std::vector<zxing::byte>> row) const;
+  QSharedPointer<std::vector<zxing::byte>> getMatrix() const;
 
   bool isRotateSupported() const {
     return true;
   }
 
-  Ref<LuminanceSource> rotateCounterClockwise() const;
+  QSharedPointer<LuminanceSource> rotateCounterClockwise() const;
 };
 
 }
 
-#endif
+#endif // ZXING_GREYSCALE_LUMINANCE_SOURCE
